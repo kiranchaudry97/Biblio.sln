@@ -21,10 +21,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Entities\" />
-    <Folder Include="Data\" />
-    <Folder Include="Seed\" />
-  </ItemGroup>
-
 </Project>
