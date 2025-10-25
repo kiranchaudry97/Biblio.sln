@@ -18,4 +18,12 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.10" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controls\" />
+    <Folder Include="Services\" />
+    <Folder Include="Styles\" />
+    <Folder Include="ViewModels\" />
+    <Folder Include="Views\" />
+  </ItemGroup>
+
 </Project>
