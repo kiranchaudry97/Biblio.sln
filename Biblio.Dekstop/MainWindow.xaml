@@ -1,12 +1,47 @@
 ﻿<Window x:Class="Biblio.Dekstop.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Biblio.Dekstop"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Biblio – Bibliotheekbeheer"
+        Height="720" Width="1080"
+        WindowStartupLocation="CenterScreen">
+    <DockPanel>
 
-    </Grid>
+        <!-- MENU -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_Bestand">
+                <MenuItem Header="_Profiel" Click="OnOpenProfile"/>
+                <MenuItem Header="_Wachtwoord wijzigen" Click="OnChangePassword"/>
+                <Separator/>
+                <MenuItem Header="_Afmelden" Click="OnLogout"/>
+                <Separator/>
+                <MenuItem Header="_Afsluiten" Click="OnExit"/>
+            </MenuItem>
+
+            <MenuItem Header="_Beheer" x:Name="AdminMenu" Visibility="Collapsed">
+                <MenuItem Header="Gebruikers &amp; Rollen" Click="OnManageUsers"/>
+            </MenuItem>
+
+            <MenuItem Header="_Openen">
+                <MenuItem Header="Boeken" Click="OnOpenBooks"/>
+                <MenuItem Header="Leden" Click="OnOpenMembers"/>
+                <MenuItem Header="Uitleningen" Click="OnOpenLoans"/>
+                <MenuItem Header="Categorieën" Click="OnOpenCategories"/>
+            </MenuItem>
+
+            <MenuItem Header="_Weergave">
+                <MenuItem x:Name="DarkThemeMenuItem" Header="Donker thema" IsCheckable="True" Click="OnToggleTheme"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- Welkomsttekst of dashboard -->
+        <Grid Background="{DynamicResource BackgroundBrush}">
+            <TextBlock Text="Welkom bij Biblio – Bibliotheekbeheer"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource ForegroundBrush}"/>
+        </Grid>
+
+    </DockPanel>
 </Window>

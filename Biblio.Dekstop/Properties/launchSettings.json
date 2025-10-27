@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Biblio.Dekstop": {
+      "commandName": "Project",
+      "sqlDebugging": true
+    }
+  }
+}

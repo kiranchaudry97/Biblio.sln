@@ -1,29 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net9.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
 
-  <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.10">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.10" />
-  </ItemGroup>
+		<!-- Voor User Secrets (mag elke GUID zijn) -->
+		<UserSecretsId>c3f7d59a-7b53-4a83-b7df-7b5a6b44e0b9</UserSecretsId>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Controls\" />
-    <Folder Include="Services\" />
-    <Folder Include="Styles\" />
-    <Folder Include="ViewModels\" />
-    <Folder Include="Views\" />
-  </ItemGroup>
+	<ItemGroup>
+		<!-- MVVM toolkit -->
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+
+		<!-- Hosting/DI + config -->
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.10" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.10" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.10" />
+		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.10" />
+
+		<!-- EF Core + Identity (runtime) -->
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.10" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Referentie naar je Models-library -->
+		<ProjectReference Include="..\Biblio.Models\Biblio.Models.csproj" />
+	</ItemGroup>
+
+	<!-- appsettings.json mee kopiëren naar bin\ -->
+	<ItemGroup>
+		<None Update="appsettings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>

@@ -1,0 +1,41 @@
+<!--
+Doel: UI voor beheren van categorieen: toevoegen, hernoemen en verwijderen met DataGrid weergave.
+-->
+<Window x:Class="Biblio.Dekstop.Views.CategoriesWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="Categorieen - Biblio" Height="480" Width="720"
+ WindowStartupLocation="CenterScreen">
+ <DockPanel Margin="12" Background="{DynamicResource BackgroundBrush}">
+ <!-- Header / invoer -->
+ <Border DockPanel.Dock="Top"
+ Background="{DynamicResource AccentLightBrush}"
+ CornerRadius="6" Padding="8"
+ BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+ Margin="0,0,0,8">
+ <DockPanel>
+ <Button DockPanel.Dock="Left" Content="Terug" IsCancel="True" Margin="0,0,8,0"/>
+ <StackPanel Orientation="Horizontal">
+ <TextBox Width="260" Text="{Binding NewName}" Margin="0,0,8,0"/>
+ <Button Content="Toevoegen" Command="{Binding AddCommand}" Style="{StaticResource PrimaryButton}"/>
+ </StackPanel>
+ </DockPanel>
+ </Border>
+
+ <!-- Grid -->
+ <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}"
+ AutoGenerateColumns="False" IsReadOnly="True"
+ Margin="0,0,0,8">
+ <DataGrid.Columns>
+ <DataGridTextColumn Header="Naam" Binding="{Binding Name}" Width="*"/>
+ </DataGrid.Columns>
+ </DataGrid>
+
+ <!-- Voet-acties -->
+ <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+ <Button Content="Naam wijzigen" Command="{Binding RenameCommand}" Margin="0,0,8,0"/>
+ <Button Content="Verwijderen" Command="{Binding DeleteCommand}"
+ Background="{DynamicResource DangerBrush}" Foreground="White"/>
+ </StackPanel>
+ </DockPanel>
+</Window>

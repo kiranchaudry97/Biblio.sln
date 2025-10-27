@@ -1,5 +1,4 @@
 <Solution>
   <Project Path="Biblio.Dekstop/Biblio.Dekstop.csproj" />
   <Project Path="Biblio.Models/Biblio.Models.csproj" />
-  <Project Path="Biblio.sln/Biblio.sln.csproj" />
 </Solution>
