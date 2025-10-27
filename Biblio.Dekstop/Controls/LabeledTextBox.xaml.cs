@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Doel: Herbruikbare WPF-usercontrol met label en tekstvak.
+// Beschrijving: Stelt dependency properties 'Label' en 'Text' bloot; 'Text' bindt standaard TwoWay.
+using System;
 using System.Windows;
 using System.Windows.Controls;
 
