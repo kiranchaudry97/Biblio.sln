@@ -1,4 +1,4 @@
-// Doel: Eenvoudige statische context om autorisatierollen in de UI te bewaren (Admin/Staff) voor conditionele weergave.
+// Doel: Eenvoudige statische context om autorisatierollen in de UI te bewaren (Admin/Staff) voor conditionele weergave..
 // Beschrijving: Houdt flags bij voor rolgebaseerde zichtbaarheid in de WPF UI en kan worden gereset bij afmelden.
 namespace Biblio.Dekstop.Services
 {
