@@ -72,7 +72,7 @@ namespace Biblio.Dekstop
                     services.AddSingleton<SecurityViewModel>();
 
                     // API client for Books (consumes Biblio.Api)
-                    services.AddSingleton<ISecurityTokenProvider, InMemoryTokenProvider>();
+                    services.AddSingleton<ISecurityTokenProvider, SecureTokenProvider>();
 
                     services.AddHttpClient<IBookApiClient, BookApiClient>(client =>
                         {
