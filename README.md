@@ -174,14 +174,11 @@ Alternatief: open solution in Visual Studio 2026, zet `Biblio.Dekstop` als start
 
 ---
 
-## 9. Voorbeeld: veilig gebruiker aanmaken in `AdminUsersWindow` (kort)
-`PasswordBox` is niet bindable — lees het wachtwoord in code-behind en gebruik `UserManager.CreateAsync(user, password)`. Na aanmaken clear `PwdBox`. Minimaliseer tijd dat plaintext in geheugen aanwezig is.
 
-(Volledige voorbeeldcode vind je in repository of vraag me om een commit-ready implementatie van `OnCreateUser`.)
 
 ---
 
-## 10. Foutafhandeling & logging
+## 9. Foutafhandeling & logging
 - Globale exception handlers zijn aanwezig in `App.xaml.cs` (Dispatcher en AppDomain).  
 - ViewModels en services gebruiken `try/catch` en tonen meldingen via `MessageBox`.  
 - Logging configureer je via `Microsoft.Extensions.Logging` in de host.
