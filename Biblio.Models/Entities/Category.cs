@@ -1,5 +1,4 @@
-﻿// Bestand: Biblio.Models/Entities/Category.cs
-// Doel: Categorie-entiteit met naam en relatie naar boeken.
+﻿// Doel: Categorie-entiteit met naam en relatie naar boeken.
 // Beschrijving: Bevat naam met lengtevalidatie en navigatiecollectie naar gekoppelde boeken.
 using System;
 using System.Collections.Generic;
