@@ -13,13 +13,18 @@ Beschrijving: Biedt zoeken en filteren (titel/auteur/ISBN), weergave van boeken 
         Height="720" Width="1080"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="16" Background="{DynamicResource BackgroundBrush}">
+        <!-- FIX: define three rows: filter (Auto), datagrid (*), form (Auto) -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <!-- filter bar -->
             <RowDefinition Height="*"/>
+            <!-- DataGrid -->
+            <RowDefinition Height="Auto"/>
+            <!-- Form -->
         </Grid.RowDefinitions>
 
         <!-- Filterbalk -->
-        <Border Background="{DynamicResource AccentLightBrush}" CornerRadius="6" Padding="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+        <Border Grid.Row="0" Background="{DynamicResource AccentLightBrush}" CornerRadius="6" Padding="8" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
             <DockPanel LastChildFill="False">
                 <Button DockPanel.Dock="Left" Content="Terug" IsCancel="True" Margin="0,0,8,0"/>
                 <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center" Margin="8,0,0,0"
