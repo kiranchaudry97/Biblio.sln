@@ -1,6 +1,6 @@
 ﻿<!--
 Doel: Globale WPF stijlen (knoppen, tekstvakken, DataGrid) en primaire knopstijl, thema-onafhankelijk.
-Beschrijving: Centrale plek voor basisstijlen die door de app worden gebruikt, los van het gekozen thema.
+Beschrijving: Centrale plek voor basisstijlen die door de app worden gebruikt, los van het gekozen thema. zie commit bericht.
 -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
