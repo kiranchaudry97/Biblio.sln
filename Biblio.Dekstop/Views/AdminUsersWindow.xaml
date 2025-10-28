@@ -1,5 +1,5 @@
 <!--
-Doel: Beheer UI voor gebruikerslijst, aanmaken van nieuwe gebruiker en toewijzen van rollen (Admin/Medewerker).
+Doel: Beheer UI voor gebruikerslijst, aanmaken van nieuwe gebruiker en toewijzen van rollen (Admin/Medewerker). zie 
 -->
 <Window x:Class="Biblio.Dekstop.Views.AdminUsersWindow"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
