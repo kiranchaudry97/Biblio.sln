@@ -5,20 +5,27 @@ using System.Windows;
 using System.Threading.Tasks;
 using Biblio.Models.Entities;
 using Microsoft.AspNetCore.Identity;
+using System.Net.Http;
+using System.Net.Http.Json;
+using Biblio.Dekstop.Services;
 
 namespace Biblio.Dekstop.Views
 {
     public partial class LoginWindow : Window
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly HttpClient _http;
+        private readonly ISecurityTokenProvider _tokenProvider;
 
         public bool IsAuthenticated { get; private set; }
         public AppUser? LoggedInUser { get; private set; }
 
-        public LoginWindow(UserManager<AppUser> userManager)
+        public LoginWindow(UserManager<AppUser> userManager, HttpClient http, ISecurityTokenProvider tokenProvider)
         {
             InitializeComponent();
             _userManager = userManager;
+            _http = http;
+            _tokenProvider = tokenProvider;
         }
 
         private void OnToggleShowPassword(object sender, RoutedEventArgs e)
@@ -72,10 +79,39 @@ namespace Biblio.Dekstop.Views
                 return;
             }
 
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user != null && await _userManager.CheckPasswordAsync(user, pwd))
+            //1) Try API token endpoint
+            try
             {
-                LoggedInUser = user;
+                var resp = await _http.PostAsJsonAsync("api/auth/token", new { Email = email, Password = pwd });
+                if (resp.IsSuccessStatusCode)
+                {
+                    var obj = await resp.Content.ReadFromJsonAsync<TokenResponse>();
+                    if (obj != null && !string.IsNullOrWhiteSpace(obj.Token))
+                    {
+                        _tokenProvider.SetToken(obj.Token);
+                        // retrieve user info locally and set LoggedInUser
+                        var user = await _userManager.FindByEmailAsync(email);
+                        if (user != null)
+                        {
+                            LoggedInUser = user;
+                            IsAuthenticated = true;
+                            DialogResult = true;
+                            Close();
+                            return;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // ignore API errors and fallback to local Identity
+            }
+
+            //2) Fallback local check
+            var localUser = await _userManager.FindByEmailAsync(email);
+            if (localUser != null && await _userManager.CheckPasswordAsync(localUser, pwd))
+            {
+                LoggedInUser = localUser;
                 IsAuthenticated = true;
                 DialogResult = true;
                 Close();
@@ -86,5 +122,7 @@ namespace Biblio.Dekstop.Views
                 ErrorText.Visibility = Visibility.Visible;
             }
         }
+
+        private record TokenResponse(string Token);
     }
 }

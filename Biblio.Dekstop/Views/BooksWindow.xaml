@@ -12,6 +12,9 @@ Beschrijving: Biedt zoeken en filteren (titel/auteur/ISBN), weergave van boeken 
         Title="Boekenbeheer - Biblio"
         Height="720" Width="1080"
         WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Window.Resources>
     <Grid Margin="16" Background="{DynamicResource BackgroundBrush}">
         <!-- FIX: define three rows: filter (Auto), datagrid (*), form (Auto) -->
         <Grid.RowDefinitions>
@@ -75,8 +78,8 @@ Beschrijving: Biedt zoeken en filteren (titel/auteur/ISBN), weergave van boeken 
                               SelectedItem="{Binding SelectedCategory}"
                               DisplayMemberPath="Name"/>
                     <Button Content="Opslaan" Command="{Binding SaveCommand}" Margin="8,0,0,0" Style="{StaticResource PrimaryButton}"/>
-                    <Button Content="Verwijderen" Command="{Binding DeleteCommand}" Margin="8,0,0,0"
-                            Background="{DynamicResource DangerBrush}" Foreground="White"/>
+                    <Button x:Name="DeleteButton" Content="Verwijderen" Command="{Binding DeleteCommand}" Margin="8,0,0,0"
+                            Background="{DynamicResource DangerBrush}" Foreground="White" Visibility="Collapsed"/>
                 </StackPanel>
             </Grid>
         </Border>

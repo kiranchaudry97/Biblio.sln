@@ -7,15 +7,17 @@ using System.Threading.Tasks;
 using System.Windows;
 using Biblio.Models.Data;
 using Biblio.Models.Entities;
+using Biblio.Dekstop.Services;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Data.SqlClient; // voor SqlException (2601/2627)
+using Microsoft.Data.SqlClient;
 
 namespace Biblio.Dekstop.ViewModels
 {
     public class BooksViewModel
     {
         private readonly BiblioDbContext _db;
+        private readonly IBookApiClient? _apiClient;
 
         // Data voor DataGrid en ComboBox
         public ObservableCollection<Book> Items { get; } = new();
@@ -65,9 +67,10 @@ namespace Biblio.Dekstop.ViewModels
         public IAsyncRelayCommand SaveCommand { get; }
         public IAsyncRelayCommand DeleteCommand { get; }
 
-        public BooksViewModel(BiblioDbContext db)
+        public BooksViewModel(BiblioDbContext db, IBookApiClient? apiClient = null)
         {
             _db = db;
+            _apiClient = apiClient;
 
             SearchCommand = new RelayCommand(async () => await LoadAsync());
             NewCommand = new RelayCommand(New);
@@ -112,6 +115,22 @@ namespace Biblio.Dekstop.ViewModels
         public async Task LoadAsync()
         {
             Items.Clear();
+
+            if (_apiClient != null)
+            {
+                try
+                {
+                    var apiBooks = await _apiClient.GetAllAsync();
+                    foreach (var b in apiBooks)
+                        Items.Add(b);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    // fallback to DB if API fails
+                    MessageBox.Show($"API call failed: {ex.Message}", "Info", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
 
             var q = _db.Books
                        .Include(b => b.Category)
@@ -238,6 +257,29 @@ namespace Biblio.Dekstop.ViewModels
                     }
                 }
 
+                if (_apiClient != null)
+                {
+                    // Use API for create/update
+                    if (Edit.Id == 0)
+                    {
+                        var created = await _apiClient.CreateAsync(Edit);
+                        // refresh list
+                        await LoadAuthorsAsync();
+                        await LoadAsync();
+                        Selected = Items.FirstOrDefault(b => b.Id == created.Id);
+                    }
+                    else
+                    {
+                        await _apiClient.UpdateAsync(Edit.Id, Edit);
+                        await LoadAuthorsAsync();
+                        await LoadAsync();
+                        Selected = Items.FirstOrDefault(b => b.Id == Edit.Id);
+                    }
+
+                    MessageBox.Show("Boek opgeslagen.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
                 if (Edit.Id == 0)
                     _db.Books.Add(Edit);
                 else
@@ -285,6 +327,15 @@ namespace Biblio.Dekstop.ViewModels
 
             try
             {
+                if (_apiClient != null)
+                {
+                    await _apiClient.DeleteAsync(Selected.Id);
+                    await LoadAuthorsAsync();
+                    await LoadAsync();
+                    New();
+                    return;
+                }
+
                 // Soft delete
                 Selected.IsDeleted = true;
                 Selected.DeletedAt = DateTime.UtcNow;

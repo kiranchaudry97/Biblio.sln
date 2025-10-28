@@ -2,6 +2,7 @@
 // Beschrijving: Start de Host, configureert services (DbContext, Identity, ViewModels/Windows),
 // voert database seeding uit en toont het hoofdvenster. Bevat globale exception handlers.
 using System;
+using System.Net.Http.Headers;
 using System.Windows;
 using Biblio.Models.Data;
 using Biblio.Models.Entities;
@@ -11,9 +12,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
 using Biblio.Dekstop.Views;
 using Biblio.Dekstop.ViewModels;
+using Biblio.Dekstop.Services;
 
 namespace Biblio.Dekstop
 {
@@ -68,6 +69,26 @@ namespace Biblio.Dekstop
                     services.AddTransient<MembersViewModel>();
                     services.AddTransient<LoansViewModel>();
                     services.AddTransient<CategoriesViewModel>();
+                    services.AddSingleton<SecurityViewModel>();
+
+                    // API client for Books (consumes Biblio.Api)
+                    services.AddSingleton<ISecurityTokenProvider, InMemoryTokenProvider>();
+
+                    services.AddHttpClient<IBookApiClient, BookApiClient>(client =>
+                        {
+                            var apiBase = context.Configuration.GetValue<string>("ApiBaseUrl") ?? "https://localhost:5001/";
+                            client.BaseAddress = new Uri(apiBase);
+                            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        })
+                        .AddHttpMessageHandler(sp =>
+                        {
+                            // handler that adds Authorization header when token is present
+                            var tokenProvider = sp.GetRequiredService<ISecurityTokenProvider>();
+                            return new AuthHeaderHandler(tokenProvider);
+                        });
+
+                    // also add registration for AuthHeaderHandler type
+                    services.AddTransient<AuthHeaderHandler>();
                 })
                 .Build();
 
@@ -88,6 +109,10 @@ namespace Biblio.Dekstop
         protected override async void OnStartup(StartupEventArgs e)
         {
             await AppHost.StartAsync();
+
+            // register SecurityViewModel instance into application resources for XAML binding
+            var securityVm = AppHost.Services.GetRequiredService<SecurityViewModel>();
+            Application.Current.Resources["SecurityViewModel"] = securityVm;
 
             try
             {

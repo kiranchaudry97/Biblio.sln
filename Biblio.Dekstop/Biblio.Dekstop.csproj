@@ -24,6 +24,7 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.10" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.10" />
 		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.10" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.10" />
 
 		<!-- EF Core + Identity (runtime) -->
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />

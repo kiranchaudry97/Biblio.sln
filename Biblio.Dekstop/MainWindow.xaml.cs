@@ -14,14 +14,18 @@ namespace Biblio.Dekstop
     {
         private readonly IServiceProvider _sp;
         private readonly UserManager<AppUser> _userManager;
+        private readonly ISecurityTokenProvider _tokenProvider;
+        private readonly SecurityViewModel _securityViewModel;
 
         public AppUser? CurrentUser { get; private set; }
 
-        public MainWindow(IServiceProvider sp, UserManager<AppUser> userManager)
+        public MainWindow(IServiceProvider sp, UserManager<AppUser> userManager, ISecurityTokenProvider tokenProvider, SecurityViewModel securityViewModel)
         {
             InitializeComponent();
             _sp = sp;
             _userManager = userManager;
+            _tokenProvider = tokenProvider;
+            _securityViewModel = securityViewModel;
             Loaded += OnLoaded;
         }
 
@@ -42,6 +46,7 @@ namespace Biblio.Dekstop
         private async Task PromptAndApplyRolesAsync()
         {
             SecurityContext.Reset();
+            _securityViewModel.Reset();
             var login = _sp.GetRequiredService<LoginWindow>();
             bool? result = login.ShowDialog();
             if (result == true && login.IsAuthenticated && login.LoggedInUser != null)
@@ -49,6 +54,10 @@ namespace Biblio.Dekstop
                 CurrentUser = login.LoggedInUser;
                 SecurityContext.IsAdmin = await _userManager.IsInRoleAsync(CurrentUser, "Admin");
                 SecurityContext.IsStaff = await _userManager.IsInRoleAsync(CurrentUser, "Medewerker");
+
+                _securityViewModel.IsAdmin = SecurityContext.IsAdmin;
+                _securityViewModel.IsStaff = SecurityContext.IsStaff;
+
                 ApplyRoleVisibility();
             }
             else
@@ -78,7 +87,16 @@ namespace Biblio.Dekstop
         {
             CurrentUser = null;
             SecurityContext.Reset();
+            _securityViewModel.Reset();
             ApplyRoleVisibility();
+
+            // clear token from provider
+            try
+            {
+                _tokenProvider.SetToken(null);
+            }
+            catch { }
+
             MessageBox.Show("Je bent afgemeld.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
             await PromptAndApplyRolesAsync();
         }

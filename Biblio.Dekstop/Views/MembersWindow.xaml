@@ -68,7 +68,7 @@
 
                 <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Bottom">
                     <Button Content="Opslaan" Command="{Binding SaveCommand}" Margin="8,0,0,0" Style="{StaticResource PrimaryButton}"/>
-                    <Button Content="Verwijderen" Command="{Binding DeleteCommand}" Margin="8,0,0,0" Background="{DynamicResource DangerBrush}" Foreground="White"/>
+                    <Button x:Name="DeleteButton" Content="Verwijderen" Command="{Binding DeleteCommand}" Margin="8,0,0,0" Background="{DynamicResource DangerBrush}" Foreground="White" Visibility="Collapsed"/>
                 </StackPanel>
             </Grid>
         </Border>
