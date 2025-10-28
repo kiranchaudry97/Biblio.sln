@@ -14,7 +14,9 @@
 - Screenshots (voorbeeldafbeeldingen)  
 - Lokaal uitvoeren: stappen en commando’s  
 - Identity, security en seed-details   
-- Foutafhandeling & logging  
+- Foutafhandeling & logging
+- Optioneel: API & JWT-key beheer
+
 
 
 ---
@@ -323,5 +325,59 @@ Alternatief: open solution in Visual Studio 2026, zet `Biblio.Dekstop` als start
 
 ---
 
+
+
+---
+
+## 10. API & JWT-key beheer
+- 10.1 Automatisch genereren van een sterke JWT key (lokaal)
+
+Script: Biblio.Api/scripts/set-jwt-secret.ps1
+
+Run vanuit repo root (PowerShell):
+```text
+
+powershell -ExecutionPolicy Bypass -File Biblio.Api\scripts\set-jwt-secret.ps1 -ProjectDir Biblio.Api
+```
+
+Het script initialeert user-secrets (indien nodig) en zet Jwt:Key in de geheime store.
+Controleer:
+```text
+dotnet user-secrets list --project Biblio.Api
+```
+
+User-secrets zijn voor development, komen niet in source control.
+---
+
+### Alternatief: environment variable (CI/Production)
+
+- Windows (session):
+  
+```text
+$env:JWT__KEY = "<sterke-key>"
+```
+
+- Windows (permanent):
+```text
+setx JWT__KEY "<sterke-key>"
+```
+
+- Linux/macOS:
+```text
+export JWT__KEY="<sterke-key>"
+```
+
+### Migrations / database (API startup)
+- Api run: 
+  
+```text
+dotnet run --project Biblio.Api
+```
+### Migrations / database (API startup)
+```text
+"Desktop": {
+  "AllowedOrigin": "http://localhost:5003"
+}
+```
 
 
