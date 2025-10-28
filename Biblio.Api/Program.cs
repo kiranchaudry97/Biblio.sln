@@ -1,3 +1,4 @@
+using Biblio.Api.Middleware;
 using Biblio.Models.Data;
 using Biblio.Models.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -28,7 +29,9 @@ services.AddIdentityCore<AppUser>(options =>
 
 // JWT
 var jwtSection = configuration.GetSection("Jwt");
-var jwtKey = jwtSection.GetValue<string>("Key") ?? "ReplaceWithStrongKeyChangeInProduction";
+// Try environment variable first, then config (appsettings/usersecrets)
+var jwtKey = Environment.GetEnvironmentVariable("JWT__KEY") ?? jwtSection.GetValue<string>("Key");
+if (string.IsNullOrWhiteSpace(jwtKey)) throw new InvalidOperationException("JWT key not configured. Set via User Secrets or environment variable 'JWT__KEY'.");
 var jwtIssuer = jwtSection.GetValue<string>("Issuer") ?? "Biblio.Api";
 var signinKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
 
@@ -39,7 +42,7 @@ services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
- options.RequireHttpsMetadata = false;
+ options.RequireHttpsMetadata = true;
  options.SaveToken = true;
  options.TokenValidationParameters = new TokenValidationParameters
  {
@@ -48,11 +51,19 @@ services.AddAuthentication(options =>
  ValidateAudience = false,
  IssuerSigningKey = signinKey,
  ValidateIssuerSigningKey = true,
- ValidateLifetime = true
+ ValidateLifetime = true,
+ ClockSkew = TimeSpan.FromSeconds(30)
  };
 });
 
 services.AddAuthorization();
+
+// CORS: only allow the desktop app origin if configured
+var allowedOrigin = configuration.GetValue<string>("Desktop:AllowedOrigin");
+if (!string.IsNullOrWhiteSpace(allowedOrigin))
+{
+ services.AddCors(opts => opts.AddPolicy("DesktopOnly", p => p.WithOrigins(allowedOrigin).AllowAnyHeader().AllowAnyMethod()));
+}
 
 services.AddControllers();
 services.AddEndpointsApiExplorer();
@@ -84,13 +95,22 @@ services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+// Global error handling
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
  app.UseSwagger();
  app.UseSwaggerUI();
 }
+else
+{
+ app.UseHsts();
+}
 
 app.UseHttpsRedirection();
+
+if (!string.IsNullOrWhiteSpace(allowedOrigin)) app.UseCors("DesktopOnly");
 
 app.UseAuthentication();
 app.UseAuthorization();
