@@ -1,6 +1,6 @@
 // Bestand: Biblio.Dekstop/Views/AdminUsersWindow.xaml.cs
 // Doel: Beheer van gebruikers en rollen; laden lijst, aanmaken nieuwe gebruiker en toewijzen Admin/Medewerker rollen via Identity.
-// Wijzigingen:
+// zie commit bericht 
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
