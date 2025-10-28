@@ -34,7 +34,7 @@
 ## 2. Doel en motivatie
 **Doel:** bibliotheken ondersteunen in hun dagelijkse werking door het uitlenen en beheren van boeken eenvoudig, overzichtelijk en efficiënt te maken.  
 **Motivatie:** dit project combineert leerwaarde (MVVM, EF Core, Identity, security) met praktische toepasbaarheid.  
-Het is haalbaar binnen ≈ 80 uur en uitbreidbaar naar web- of mobiele versies.
+Het is haalbaar binnen ≈ 80 uur en uitbreidbaar naar web-versie.
 
 ---
 
