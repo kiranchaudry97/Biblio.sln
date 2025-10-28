@@ -1,3 +1,5 @@
+// Doel: ViewModel voor boekenbeheer; laden, filteren en CRUD met validatie.
+// Beschrijving: Beheert Items/Categories/Authors, ondersteunt zoeken en auteursfilter, ISBN-validatie/duplicate-check en soft-delete.
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
