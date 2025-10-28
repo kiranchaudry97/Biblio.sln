@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Doel: ViewModel voor uitleningen; registreren, terugbrengen en verwijderen met validatie.
+// Beschrijving: Laadt leden/beschikbare boeken/leningen, ondersteunt filter op openstaand, voorkomt dubbele openstaande lening en verwerkt retour/hard delete.
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
