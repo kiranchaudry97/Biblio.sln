@@ -1,3 +1,5 @@
+// Doel: ViewModel voor categoriebeheer; laden, toevoegen, hernoemen en soft-delete.
+// Beschrijving: Beheert lijst van categorieën, valideert invoer en gebruikt EF Core async-commando's voor CRUD.
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
