@@ -13,10 +13,9 @@
 - Project- en mappenstructuur  
 - Screenshots (voorbeeldafbeeldingen)  
 - Lokaal uitvoeren: stappen en commando’s  
-- Identity, security en seed-details  
-- Voorbeeld: veilig gebruiker aanmaken vanuit `AdminUsersWindow`  
+- Identity, security en seed-details   
 - Foutafhandeling & logging  
-- Submissie  
+
 
 ---
 
