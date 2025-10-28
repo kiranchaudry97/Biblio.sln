@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Net.Http;
 using System.Net.Http.Json;
 using Biblio.Dekstop.Services;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Biblio.Dekstop.Views
 {
@@ -88,7 +89,25 @@ namespace Biblio.Dekstop.Views
                     var obj = await resp.Content.ReadFromJsonAsync<TokenResponse>();
                     if (obj != null && !string.IsNullOrWhiteSpace(obj.Token))
                     {
+                        // parse token expiry
+                        try
+                        {
+                            var handler = new JwtSecurityTokenHandler();
+                            var jwt = handler.ReadJwtToken(obj.Token);
+                            var exp = jwt.ValidTo;
+                            if (exp < DateTime.UtcNow)
+                            {
+                                MessageBox.Show("Ontvangen token is al verlopen.", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
+                            }
+                        }
+                        catch
+                        {
+                            // ignore parse errors
+                        }
+
+                        // Persist securely
                         _tokenProvider.SetToken(obj.Token);
+
                         // retrieve user info locally and set LoggedInUser
                         var user = await _userManager.FindByEmailAsync(email);
                         if (user != null)
