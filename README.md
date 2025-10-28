@@ -57,28 +57,167 @@ Soft-delete is aanwezig: alle modellen bevatten `IsDeleted` en `BiblioDbContext`
 
 ---
 
-## 4. Technische samenvatting
+## 4. Technische samenvatting + Implentatie
+
 - **Target framework:** `net9.0-windows` (WPF, .NET 9)  
 - **Solution bestaat uit twee projecten:**
-  - `Biblio.Models` — entiteiten, `BiblioDbContext : IdentityDbContext<AppUser,...>`, migraties en seeders  
-  - `Biblio.Desktop` — WPF frontend (Views, ViewModels), DI/Host, services, styles en assets  
-- **Identity:**
-  - Custom user: `AppUser : IdentityUser` met extra property `FullName`
-  - Rollen: `Admin`, `Medewerker` (aangemaakt door seeder)
-- **DI / Host:**
-  - `App.xaml.cs` bouwt een `Host` met `Microsoft.Extensions.Hosting` en registreert DbContext, Identity, services, views en viewmodels  
-- **EF Core:**
-  - `BiblioDbContext` bevat `DbSet<Book>`, `DbSet<Member>`, `DbSet<Category>`, `DbSet<Loan>`
-  - Unieke indexes en filters (bv. slechts 1 actieve uitlening per boek) zijn in `OnModelCreating` gedefinieerd  
-- **WPF UI:**
-  - MVVM-structuur (Views + ViewModels). Bindingen worden systematisch gebruikt.  
-  - Styles en thema’s in `Biblio.Desktop/Styles/`  
-  - Custom control aanwezig: `Biblio.Desktop/Controls/LabeledTextBox.xaml`  
-- **Security:**
-  - Geen plain-text wachtwoorden in repo — gebruik **User Secrets** of environment variables.  
+  - `Biblio.Models` — entiteiten, migraties, seeders, en `BiblioDbContext : IdentityDbContext<AppUser,...>`  
+  - `Biblio.Dekstop` — WPF frontend (Views, ViewModels), DI/Host, services, styles en assets  
+- **Identity:**  
+  - Custom user: `AppUser : IdentityUser` met extra property `FullName` (`Biblio.Models/Entities/AppUser.cs`)  
+  - Rollen: `Admin`, `Medewerker` (aangemaakt door seeder `SeedData`)  
+- **DI / Host:**  
+  - `App.xaml.cs` bouwt een `Host` (via `Microsoft.Extensions.Hosting`) en registreert `BiblioDbContext`, Identity, services, viewmodels en views.  
+  - Identity is geregistreerd met `AddIdentityCore` + role stores (zie `App.xaml.cs`).  
+- **EF Core:**  
+  - `BiblioDbContext` bevat `DbSet<Book>`, `DbSet<Member>`, `DbSet<Category>`, `DbSet<Loan>`.  
+  - `OnModelCreating` bevat NL-kolomnamen, unieke indexes en global query-filters voor soft-delete.  
+  - Ook aanwezig: index/filter om maximaal één actieve uitlening per boek toe te laten.  
+- **WPF UI:**  
+  - MVVM-architectuur: Views in `Biblio.Dekstop/Views`, ViewModels in `Biblio.Dekstop/ViewModels`.  
+  - Bindingen worden systematisch gebruikt.  
+  - Styles/thema's in `Biblio.Dekstop/Styles/`.  
+  - Custom control `Biblio.Dekstop/Controls/LabeledTextBox.xaml` aanwezig.  
+- **Security:**  
+  - Geen plain-text wachtwoorden in repository.  
+  - Gebruik `dotnet user-secrets` of environment variables voor connection strings en seed wachtwoorden.  
+  - Identity (`UserManager`) verzorgt hashing en opslag van wachtwoorden.  
 
 ---
 
+### Voorbeeld — veilig gebruiker aanmaken in `AdminUsersWindow` (technische implementatie)
+
+#### ⚙️ Wat er nodig is
+- **UI:** `Biblio.Dekstop/Views/AdminUsersWindow.xaml` met o.a.:
+  - `PasswordBox x:Name="PwdBox"`
+  - Binding-velden: `NewEmail`, `NewFullName`, `NewIsAdmin`, `NewIsStaff`  
+- **Code-behind:** `Biblio.Dekstop/Views/AdminUsersWindow.xaml.cs`  
+  - Injectie via DI: `UserManager<AppUser>` en `RoleManager<IdentityRole>`  
+- **Namespaces:**  
+  `System.Runtime.InteropServices`, `System.Security`, `Microsoft.AspNetCore.Identity`,  
+  `System.Linq`, `System.Windows`.
+
+#### 🧱 Belangrijke principes
+- `PasswordBox` is **niet bindable** — lees `PwdBox.SecurePassword` in code-behind.  
+- Identity verwacht een `string` wachtwoord in `UserManager.CreateAsync(user, password)`, dus een korte conversie van `SecureString` → `string` is vereist.  
+- Minimaliseer plaintext-exposure: wis het wachtwoord onmiddellijk met `PwdBox.Clear()`.  
+- Laat **Identity** zelf de hashing uitvoeren en gebruik `RoleManager` voor rolbeheer.  
+
+---
+
+### 🧩 Voorbeeldcode — `AdminUsersWindow.xaml.cs`
+
+> **Bestand:** `Biblio.Dekstop/Views/AdminUsersWindow.xaml.cs`
+
+```csharp
+// Vereiste usings:
+using System;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security;
+using System.Windows;
+using Microsoft.AspNetCore.Identity;
+using Biblio.Models.Entities;
+
+namespace Biblio.Dekstop.Views
+{
+    public partial class AdminUsersWindow : Window
+    {
+        private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public AdminUsersWindow(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
+        {
+            InitializeComponent();
+            _userManager = userManager;
+            _roleManager = roleManager;
+        }
+
+        //  Hulpmethode: converteer tijdelijk SecureString → plaintext
+        private static string? ToInsecureString(SecureString? secure)
+        {
+            if (secure == null) return null;
+            IntPtr ptr = IntPtr.Zero;
+            try
+            {
+                ptr = Marshal.SecureStringToGlobalAllocUnicode(secure);
+                return Marshal.PtrToStringUni(ptr);
+            }
+            finally
+            {
+                if (ptr != IntPtr.Zero)
+                    Marshal.ZeroFreeGlobalAllocUnicode(ptr);
+            }
+        }
+
+        //  Eventhandler: nieuwe gebruiker aanmaken
+        private async void OnCreateUser(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var email = (NewEmail ?? string.Empty).Trim();
+                var fullName = (NewFullName ?? string.Empty).Trim();
+
+                // Tijdelijke conversie van SecureString naar plaintext
+                var password = ToInsecureString(PwdBox.SecurePassword);
+
+                if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+                {
+                    MessageBox.Show("Email en wachtwoord zijn verplicht.", "Validatie",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var user = new AppUser
+                {
+                    UserName = email,
+                    Email = email,
+                    FullName = fullName,
+                    EmailConfirmed = true
+                };
+
+                var createResult = await _userManager.CreateAsync(user, password);
+
+                // Clear plaintext exposure ASAP
+                PwdBox.Clear();
+
+                if (!createResult.Succeeded)
+                {
+                    var errors = string.Join(Environment.NewLine, createResult.Errors.Select(x => x.Description));
+                    MessageBox.Show($"Kon gebruiker niet aanmaken:\n{errors}", "Fout",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Zorg dat rollen bestaan en wijs ze toe
+                if (!await _roleManager.RoleExistsAsync("Admin"))
+                    await _roleManager.CreateAsync(new IdentityRole("Admin"));
+                if (!await _roleManager.RoleExistsAsync("Medewerker"))
+                    await _roleManager.CreateAsync(new IdentityRole("Medewerker"));
+
+                if (NewIsAdmin)
+                    await _userManager.AddToRoleAsync(user, "Admin");
+                if (NewIsStaff)
+                    await _userManager.AddToRoleAsync(user, "Medewerker");
+
+                await LoadUsersAsync(); // herlaad gebruikerslijst in UI
+
+                // Reset UI velden
+                NewEmail = NewFullName = null;
+                NewIsAdmin = NewIsStaff = false;
+
+                MessageBox.Show("Gebruiker succesvol aangemaakt.", "Succes",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Onverwachte fout: {ex.Message}", "Fout",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+}
+```
 ## 5. Project- en mappenstructuur
 
 ```text
