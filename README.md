@@ -14,7 +14,9 @@
 - Screenshots (voorbeeldafbeeldingen)  
 - Lokaal uitvoeren: stappen en commando’s  
 - Identity, security en seed-details   
-- Foutafhandeling & logging  
+- Foutafhandeling & logging
+- Optioneel: API & JWT-key beheer
+
 
 
 ---
@@ -269,6 +271,60 @@ Biblio/                     ← Solution-root
 ## 6. Screenshots — placeholders
 Plaats later screenshots
 
+![image alt](https://github.com/kiranchaudry97/Biblio.sln/blob/5b840c0b14ed75ff9afd4f2633ff69ec8b8e1ee5/screenshots_biblio/mainwindow.png)
+*[ Main window ]*
+
+![image alt](https://github.com/kiranchaudry97/Biblio.sln/blob/5b840c0b14ed75ff9afd4f2633ff69ec8b8e1ee5/screenshots_biblio/login.png)
+*[ Bestand - Login, kunnen zich aanmelden , wachtwoord tonen, als je wachtwoord vergeten ben dat je nieuwe wachtwoord kan aanvragen en aanpassen]*
+
+
+![image alt](https://github.com/kiranchaudry97/Biblio.sln/blob/5b840c0b14ed75ff9afd4f2633ff69ec8b8e1ee5/screenshots_biblio/wachtwoord_wijzingen.png)
+*[Bestand - wachtwoord kunnen bewerken]*
+
+
+![image alt](https://github.com/kiranchaudry97/Biblio.sln/blob/5b840c0b14ed75ff9afd4f2633ff69ec8b8e1ee5/screenshots_biblio/loginAdmin.png)
+*[Aanmelden als Admin]*
+
+
+![image alt](https://github.com/kiranchaudry97/Biblio.sln/blob/5b840c0b14ed75ff9afd4f2633ff69ec8b8e1ee5/screenshots_biblio/bestand.png)
+*[Navigatie Bestand - Profiel , wachtwoord wijzingen, afmelden , afsluiten]*
+
+![image alt](https://github.com/kiranchaudry97/Biblio.sln/blob/5b840c0b14ed75ff9afd4f2633ff69ec8b8e1ee5/screenshots_biblio/beheer.png)
+*[Navigatie - Beheer]*
+
+
+![image alt](https://github.com/kiranchaudry97/Biblio.sln/blob/5b840c0b14ed75ff9afd4f2633ff69ec8b8e1ee5/screenshots_biblio/Profiel_bewerken.png)
+*[profiel beheer van de admin]*
+
+
+![image alt](https://github.com/kiranchaudry97/Biblio.sln/blob/5b840c0b14ed75ff9afd4f2633ff69ec8b8e1ee5/screenshots_biblio/rollen.png)
+*[Rollen - Rollen kunnen beheren ]*
+
+![image alt](https://github.com/kiranchaudry97/Biblio.sln/blob/5b840c0b14ed75ff9afd4f2633ff69ec8b8e1ee5/screenshots_biblio/rollen_bewerken.png)
+*[Rollen kunnen aangeven]*
+
+![image alt](https://github.com/kiranchaudry97/Biblio.sln/blob/5b840c0b14ed75ff9afd4f2633ff69ec8b8e1ee5/screenshots_biblio/openene.png)
+*[Navigatie - openen]*
+
+![image alt](https://github.com/kiranchaudry97/Biblio.sln/blob/5b840c0b14ed75ff9afd4f2633ff69ec8b8e1ee5/screenshots_biblio/categorieen.png)
+*[categorieen kunnen zien , toevoegen en aanpassen]*
+
+![image alt](https://github.com/kiranchaudry97/Biblio.sln/blob/5b840c0b14ed75ff9afd4f2633ff69ec8b8e1ee5/screenshots_biblio/boeken_beheer.png)
+*[Boeken - Boeken kunnen beheren , toevoegen en aanpassen]*
+
+![image alt](https://github.com/kiranchaudry97/Biblio.sln/blob/5b840c0b14ed75ff9afd4f2633ff69ec8b8e1ee5/screenshots_biblio/uitleining_boeken.png)
+*[Uitlening - overzicht van de Boeken kunnen uitlenen, en terug inleveren vermelden overzicht met datum en periode geleende boek]*
+
+
+![image alt](https://github.com/kiranchaudry97/Biblio.sln/blob/5b840c0b14ed75ff9afd4f2633ff69ec8b8e1ee5/screenshots_biblio/ledenbeheer.png)
+*[Ledenbeheer - overzicht van de leden , nieuwe leden kunnen toeveogen met overzichtelijke informatie]*
+
+
+
+![image alt](https://github.com/kiranchaudry97/Biblio.sln/blob/5b840c0b14ed75ff9afd4f2633ff69ec8b8e1ee5/screenshots_biblio/donkermodus.png)
+*[Weergave - donker modus kunnen in/uitschakkelen]*
+
+
 
 ---
 
@@ -323,5 +379,59 @@ Alternatief: open solution in Visual Studio 2026, zet `Biblio.Dekstop` als start
 
 ---
 
+
+
+---
+
+## 10. API & JWT-key beheer
+- 10.1 Automatisch genereren van een sterke JWT key (lokaal)
+
+Script: Biblio.Api/scripts/set-jwt-secret.ps1
+
+Run vanuit repo root (PowerShell):
+```text
+
+powershell -ExecutionPolicy Bypass -File Biblio.Api\scripts\set-jwt-secret.ps1 -ProjectDir Biblio.Api
+```
+
+Het script initialeert user-secrets (indien nodig) en zet Jwt:Key in de geheime store.
+Controleer:
+```text
+dotnet user-secrets list --project Biblio.Api
+```
+
+User-secrets zijn voor development, komen niet in source control.
+---
+
+### Alternatief: environment variable (CI/Production)
+
+- Windows (session):
+  
+```text
+$env:JWT__KEY = "<sterke-key>"
+```
+
+- Windows (permanent):
+```text
+setx JWT__KEY "<sterke-key>"
+```
+
+- Linux/macOS:
+```text
+export JWT__KEY="<sterke-key>"
+```
+
+### Migrations / database (API startup)
+- Api run: 
+  
+```text
+dotnet run --project Biblio.Api
+```
+### Migrations / database (API startup)
+```text
+"Desktop": {
+  "AllowedOrigin": "http://localhost:5003"
+}
+```
 
 
