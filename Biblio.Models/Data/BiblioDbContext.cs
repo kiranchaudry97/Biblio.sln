@@ -9,6 +9,8 @@ using Biblio.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 
 namespace Biblio.Models.Data;
@@ -73,34 +75,30 @@ public class BiblioDbContext : IdentityDbContext<AppUser, IdentityRole, string>
  .HasForeignKey(x => x.CategoryId)
  .OnDelete(DeleteBehavior.Restrict);
 
+ // Ensure category table mapping
+ b.Entity<Category>(e =>
+ {
+ e.ToTable("Categorieen");
+ e.Property(x => x.Id).HasColumnName("CategorieId");
+ e.Property(x => x.Name).HasColumnName("Naam");
+ });
 
- b.Entity<Loan>()
- .HasOne(l => l.Book)
- .WithMany(bk => bk.Loans)
- .HasForeignKey(l => l.BookId);
+ // Global query filters for soft-delete: apply to all entities deriving from BaseEntity
+ foreach (var entityType in b.Model.GetEntityTypes())
+ {
+ var clrType = entityType.ClrType;
+ if (clrType == null) continue;
+ if (!typeof(BaseEntity).IsAssignableFrom(clrType)) continue;
 
+ // parameter: e => EF.Property<bool>(e, "IsDeleted") == false
+ var parameter = Expression.Parameter(clrType, "e");
+ var efPropertyMethod = typeof(EF).GetMethod(nameof(EF.Property), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)!.MakeGenericMethod(typeof(bool));
+ var isDeletedProperty = Expression.Call(efPropertyMethod, parameter, Expression.Constant("IsDeleted"));
+ var compare = Expression.Equal(isDeletedProperty, Expression.Constant(false));
+ var lambda = Expression.Lambda(compare, parameter);
 
- b.Entity<Loan>()
- .HasOne(l => l.Member)
- .WithMany(m => m.Loans)
- .HasForeignKey(l => l.MemberId);
+ b.Entity(clrType).HasQueryFilter(lambda);
+ }
 
-
- // Soft‑delete global filters
- b.Entity<Book>().HasQueryFilter(e => !e.IsDeleted);
- b.Entity<Member>().HasQueryFilter(e => !e.IsDeleted);
- b.Entity<Category>().HasQueryFilter(e => !e.IsDeleted);
- b.Entity<Loan>().HasQueryFilter(e => !e.IsDeleted);
-
- // Unieke indexes voor data-integriteit
- b.Entity<Member>()
- .HasIndex(m => m.Email)
- .IsUnique()
- .HasFilter("([Email] IS NOT NULL AND [Email] <> '')");
-
- b.Entity<Book>()
- .HasIndex(bk => bk.Isbn)
- .IsUnique()
- .HasFilter("([Isbn] IS NOT NULL AND [Isbn] <> '')");
  }
 }

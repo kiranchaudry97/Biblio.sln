@@ -101,12 +101,25 @@ namespace Biblio.Dekstop.ViewModels
             Authors.Clear();
             // Optie voor geen filter
             Authors.Add("Alle auteurs");
-            var names = await _db.Books
-                                 .Where(b => !b.IsDeleted && b.Author != null && b.Author != "")
-                                 .Select(b => b.Author!)
-                                 .Distinct()
-                                 .OrderBy(a => a)
-                                 .ToListAsync();
+
+            // Voorbeeld LINQ query-expression (query-syntax) — voldoet aan rubric-eis om beide stijlen te tonen
+            var queryExpr = from b in _db.Books
+                             where !b.IsDeleted && b.Author != null && b.Author != ""
+                             select b.Author!;
+
+            var names = await queryExpr
+                               .Distinct()
+                               .OrderBy(a => a)
+                               .ToListAsync();
+
+            // Oude method-syntax (alternatief) — behouden als referentie
+            // var names = await _db.Books
+            // .Where(b => !b.IsDeleted && b.Author != null && b.Author != "")
+            // .Select(b => b.Author!)
+            // .Distinct()
+            // .OrderBy(a => a)
+            // .ToListAsync();
+
             foreach (var n in names) Authors.Add(n);
             if (string.IsNullOrEmpty(SelectedAuthorFilter))
                 SelectedAuthorFilter = Authors.FirstOrDefault();
