@@ -1,0 +1,99 @@
+<Window x:Class="Biblio.Dekstop.Views.AdminRestoreWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="Herstel verwijderde items" Height="600" Width="900" WindowStartupLocation="CenterOwner">
+ <Grid Margin="8">
+ <Grid.RowDefinitions>
+ <RowDefinition Height="Auto" />
+ <RowDefinition Height="*" />
+ </Grid.RowDefinitions>
+
+ <TextBlock Text="Herstel soft-deleted items" FontSize="16" FontWeight="Bold" Margin="4" />
+
+ <TabControl Grid.Row="1" Margin="4">
+ <TabItem Header="Boeken">
+ <Grid>
+ <Grid.RowDefinitions>
+ <RowDefinition Height="*" />
+ <RowDefinition Height="Auto" />
+ </Grid.RowDefinitions>
+ <DataGrid x:Name="BooksGrid" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single" Margin="4">
+ <DataGrid.Columns>
+ <DataGridTextColumn Header="Titel" Binding="{Binding Title}" Width="*" />
+ <DataGridTextColumn Header="Auteur" Binding="{Binding Author}" Width="200" />
+ <DataGridTextColumn Header="ISBN" Binding="{Binding Isbn}" Width="150" />
+ <DataGridTextColumn Header="Verwijderd op" Binding="{Binding DeletedAt}" Width="160" />
+ </DataGrid.Columns>
+ </DataGrid>
+ <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right" Margin="4">
+ <Button x:Name="RestoreBookButton" Content="Herstel geselecteerd boek" Margin="4" Padding="8,4" Click="OnRestoreBook"/>
+ <Button Content="Vernieuw" Margin="4" Padding="8,4" Click="OnRefresh"/>
+ </StackPanel>
+ </Grid>
+ </TabItem>
+
+ <TabItem Header="Leden">
+ <Grid>
+ <Grid.RowDefinitions>
+ <RowDefinition Height="*" />
+ <RowDefinition Height="Auto" />
+ </Grid.RowDefinitions>
+ <DataGrid x:Name="MembersGrid" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single" Margin="4">
+ <DataGrid.Columns>
+ <DataGridTextColumn Header="Voornaam" Binding="{Binding FirstName}" Width="*" />
+ <DataGridTextColumn Header="Achternaam" Binding="{Binding LastName}" Width="200" />
+ <DataGridTextColumn Header="E-mail" Binding="{Binding Email}" Width="200" />
+ <DataGridTextColumn Header="Verwijderd op" Binding="{Binding DeletedAt}" Width="160" />
+ </DataGrid.Columns>
+ </DataGrid>
+ <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right" Margin="4">
+ <Button x:Name="RestoreMemberButton" Content="Herstel geselecteerd lid" Margin="4" Padding="8,4" Click="OnRestoreMember" />
+ <Button Content="Vernieuw" Margin="4" Padding="8,4" Click="OnRefresh"/>
+ </StackPanel>
+ </Grid>
+ </TabItem>
+
+ <TabItem Header="Uitleningen">
+ <Grid>
+ <Grid.RowDefinitions>
+ <RowDefinition Height="*" />
+ <RowDefinition Height="Auto" />
+ </Grid.RowDefinitions>
+ <DataGrid x:Name="LoansGrid" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single" Margin="4">
+ <DataGrid.Columns>
+ <DataGridTextColumn Header="Boek" Binding="{Binding Book.Title}" Width="*" />
+ <DataGridTextColumn Header="Lid" Binding="{Binding Member.FirstName}" Width="150" />
+ <DataGridTextColumn Header="Startdatum" Binding="{Binding StartDate}" Width="150" />
+ <DataGridTextColumn Header="Einddatum" Binding="{Binding DueDate}" Width="150" />
+ <DataGridTextColumn Header="Verwijderd op" Binding="{Binding DeletedAt}" Width="160" />
+ </DataGrid.Columns>
+ </DataGrid>
+ <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right" Margin="4">
+ <Button x:Name="RestoreLoanButton" Content="Herstel geselecteerde uitlening" Margin="4" Padding="8,4" Click="OnRestoreLoan"/>
+ <Button Content="Vernieuw" Margin="4" Padding="8,4" Click="OnRefresh"/>
+ </StackPanel>
+ </Grid>
+ </TabItem>
+
+ <TabItem Header="Categorieen">
+ <Grid>
+ <Grid.RowDefinitions>
+ <RowDefinition Height="*" />
+ <RowDefinition Height="Auto" />
+ </Grid.RowDefinitions>
+ <DataGrid x:Name="CategoriesGrid" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single" Margin="4">
+ <DataGrid.Columns>
+ <DataGridTextColumn Header="Naam" Binding="{Binding Name}" Width="*" />
+ <DataGridTextColumn Header="Verwijderd op" Binding="{Binding DeletedAt}" Width="160" />
+ </DataGrid.Columns>
+ </DataGrid>
+ <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right" Margin="4">
+ <Button x:Name="RestoreCategoryButton" Content="Herstel geselecteerde categorie" Margin="4" Padding="8,4" Click="OnRestoreCategory"/>
+ <Button Content="Vernieuw" Margin="4" Padding="8,4" Click="OnRefresh"/>
+ </StackPanel>
+ </Grid>
+ </TabItem>
+
+ </TabControl>
+ </Grid>
+</Window>

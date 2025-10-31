@@ -63,6 +63,7 @@ namespace Biblio.Dekstop
                     services.AddTransient<MembersWindow>();
                     services.AddTransient<LoansWindow>();
                     services.AddTransient<CategoriesWindow>();
+                    services.AddTransient<AdminRestoreWindow>();
 
                     // ViewModels
                     services.AddTransient<BooksViewModel>();
