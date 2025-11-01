@@ -9,12 +9,10 @@ using System.Windows;
 using Biblio.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Biblio.Dekstop.Views
 {
- public partial class AdminUsersWindow : Window, INotifyPropertyChanged
+ public partial class AdminUsersWindow : Window
  {
  private readonly UserManager<AppUser> _userManager;
  private readonly RoleManager<IdentityRole> _roleManager;
@@ -27,59 +25,19 @@ namespace Biblio.Dekstop.Views
  get => _selectedUser;
  set
  {
- if (_selectedUser == value) return;
  _selectedUser = value;
- OnPropertyChanged(nameof(SelectedUser));
  _ = LoadSelectedUserRolesAsync();
  }
  }
 
- private bool _isAdmin;
- public bool IsAdmin
- {
- get => _isAdmin;
- set { if (_isAdmin == value) return; _isAdmin = value; OnPropertyChanged(nameof(IsAdmin)); }
- }
+ public bool IsAdmin { get; set; }
+ public bool IsStaff { get; set; }
 
- private bool _isStaff;
- public bool IsStaff
- {
- get => _isStaff;
- set { if (_isStaff == value) return; _isStaff = value; OnPropertyChanged(nameof(IsStaff)); }
- }
-
- private string? _newEmail;
- public string? NewEmail
- {
- get => _newEmail;
- set { _newEmail = value; OnPropertyChanged(nameof(NewEmail)); }
- }
- private string? _newPassword;
- public string? NewPassword
- {
- get => _newPassword;
- set { _newPassword = value; OnPropertyChanged(nameof(NewPassword)); }
- }
- private string? _newFullName;
- public string? NewFullName
- {
- get => _newFullName;
- set { _newFullName = value; OnPropertyChanged(nameof(NewFullName)); }
- }
-
- private bool _newIsAdmin;
- public bool NewIsAdmin
- {
- get => _newIsAdmin;
- set { _newIsAdmin = value; OnPropertyChanged(nameof(NewIsAdmin)); }
- }
-
- private bool _newIsStaff = true;
- public bool NewIsStaff
- {
- get => _newIsStaff;
- set { _newIsStaff = value; OnPropertyChanged(nameof(NewIsStaff)); }
- }
+ public string? NewEmail { get; set; }
+ public string? NewPassword { get; set; }
+ public string? NewFullName { get; set; }
+ public bool NewIsAdmin { get; set; }
+ public bool NewIsStaff { get; set; } = true;
 
  public AdminUsersWindow(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
  {
@@ -115,33 +73,15 @@ namespace Biblio.Dekstop.Views
  if (!await _roleManager.RoleExistsAsync("Medewerker"))
  await _roleManager.CreateAsync(new IdentityRole("Medewerker"));
 
- // Admin role
  if (IsAdmin && !await _userManager.IsInRoleAsync(SelectedUser, "Admin"))
- {
- var res = await _userManager.AddToRoleAsync(SelectedUser, "Admin");
- if (!res.Succeeded) throw new Exception(string.Join("; ", res.Errors.Select(x => x.Description)));
- }
+ await _userManager.AddToRoleAsync(SelectedUser, "Admin");
  else if (!IsAdmin && await _userManager.IsInRoleAsync(SelectedUser, "Admin"))
- {
- var res = await _userManager.RemoveFromRoleAsync(SelectedUser, "Admin");
- if (!res.Succeeded) throw new Exception(string.Join("; ", res.Errors.Select(x => x.Description)));
- }
+ await _userManager.RemoveFromRoleAsync(SelectedUser, "Admin");
 
- // Staff role
  if (IsStaff && !await _userManager.IsInRoleAsync(SelectedUser, "Medewerker"))
- {
- var res = await _userManager.AddToRoleAsync(SelectedUser, "Medewerker");
- if (!res.Succeeded) throw new Exception(string.Join("; ", res.Errors.Select(x => x.Description)));
- }
+ await _userManager.AddToRoleAsync(SelectedUser, "Medewerker");
  else if (!IsStaff && await _userManager.IsInRoleAsync(SelectedUser, "Medewerker"))
- {
- var res = await _userManager.RemoveFromRoleAsync(SelectedUser, "Medewerker");
- if (!res.Succeeded) throw new Exception(string.Join("; ", res.Errors.Select(x => x.Description)));
- }
-
- // refresh UI
- await LoadUsersAsync();
- await LoadSelectedUserRolesAsync();
+ await _userManager.RemoveFromRoleAsync(SelectedUser, "Medewerker");
 
  MessageBox.Show("Rollen opgeslagen.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
  }
@@ -163,12 +103,6 @@ namespace Biblio.Dekstop.Views
 
  try
  {
- // Ensure roles exist before assigning
- if (!await _roleManager.RoleExistsAsync("Admin"))
- await _roleManager.CreateAsync(new IdentityRole("Admin"));
- if (!await _roleManager.RoleExistsAsync("Medewerker"))
- await _roleManager.CreateAsync(new IdentityRole("Medewerker"));
-
  var user = new AppUser { UserName = NewEmail.Trim(), Email = NewEmail.Trim(), FullName = NewFullName };
  var result = await _userManager.CreateAsync(user, NewPassword);
  if (!result.Succeeded)
@@ -178,27 +112,13 @@ namespace Biblio.Dekstop.Views
  }
 
  if (NewIsAdmin)
- {
- var r = await _userManager.AddToRoleAsync(user, "Admin");
- if (!r.Succeeded) MessageBox.Show(string.Join("\n", r.Errors.Select(x => x.Description)), "Fout Rollen", MessageBoxButton.OK, MessageBoxImage.Warning);
- }
+ await _userManager.AddToRoleAsync(user, "Admin");
  if (NewIsStaff)
- {
- var r = await _userManager.AddToRoleAsync(user, "Medewerker");
- if (!r.Succeeded) MessageBox.Show(string.Join("\n", r.Errors.Select(x => x.Description)), "Fout Rollen", MessageBoxButton.OK, MessageBoxImage.Warning);
- }
-
- await LoadUsersAsync();
- SelectedUser = Users.FirstOrDefault(u => u.Email == user.Email);
+ await _userManager.AddToRoleAsync(user, "Medewerker");
 
  NewEmail = NewPassword = NewFullName = string.Empty;
  NewIsAdmin = false; NewIsStaff = true;
- OnPropertyChanged(nameof(NewEmail));
- OnPropertyChanged(nameof(NewPassword));
- OnPropertyChanged(nameof(NewFullName));
- OnPropertyChanged(nameof(NewIsAdmin));
- OnPropertyChanged(nameof(NewIsStaff));
-
+ await LoadUsersAsync();
  MessageBox.Show("Gebruiker aangemaakt.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
  }
  catch (Exception ex)
@@ -206,15 +126,5 @@ namespace Biblio.Dekstop.Views
  MessageBox.Show($"Aanmaken mislukt: {ex.Message}", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
  }
  }
-
- private void OnOpenRestore(object sender, RoutedEventArgs e)
- {
- var wnd = App.AppHost.Services.GetRequiredService<AdminRestoreWindow>();
- wnd.Owner = this;
- wnd.ShowDialog();
- }
-
- public event PropertyChangedEventHandler? PropertyChanged;
- private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
  }
 }

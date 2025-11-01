@@ -42,7 +42,6 @@ Doel: Beheer UI voor gebruikerslijst, aanmaken van nieuwe gebruiker en toewijzen
  <CheckBox Content="Admin" IsChecked="{Binding IsAdmin, Mode=TwoWay}" Margin="0,0,0,8"/>
  <CheckBox Content="Medewerker" IsChecked="{Binding IsStaff, Mode=TwoWay}"/>
  <Button Content="Opslaan" HorizontalAlignment="Right" Margin="0,12,0,0" Click="OnSaveRoles" Style="{StaticResource PrimaryButton}"/>
- <Button Content="Herstel verwijderd" HorizontalAlignment="Right" Margin="0,12,0,0" Click="OnOpenRestore" Style="{StaticResource PrimaryButton}"/>
  </StackPanel>
  </GroupBox>
 
